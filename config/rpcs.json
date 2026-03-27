@@ -1,0 +1,43 @@
+{
+  "ethereum": {
+    "name": "Ethereum Mainnet",
+    "chainId": 1,
+    "rpcs": [
+      { "url": "https://eth.llamarpc.com", "name": "Llama" },
+      { "url": "https://rpc.ankr.com/eth", "name": "Ankr" },
+      { "url": "https://ethereum.publicnode.com", "name": "PublicNode" },
+      { "url": "https://eth.drpc.org", "name": "dRPC" },
+      { "url": "https://rpc.mevblocker.io", "name": "MEVBlocker" }
+    ],
+    "websockets": [
+      { "url": "wss://eth.llamarpc.com", "name": "Llama WS" },
+      { "url": "wss://ethereum.publicnode.com", "name": "PublicNode WS" }
+    ]
+  },
+  "base": {
+    "name": "Base Mainnet",
+    "chainId": 8453,
+    "rpcs": [
+      { "url": "https://mainnet.base.org", "name": "Base Official" },
+      { "url": "https://base.llamarpc.com", "name": "Llama" },
+      { "url": "https://base.publicnode.com", "name": "PublicNode" },
+      { "url": "https://base.drpc.org", "name": "dRPC" },
+      { "url": "https://rpc.ankr.com/base", "name": "Ankr" }
+    ],
+    "websockets": [
+      { "url": "wss://base.publicnode.com", "name": "PublicNode WS" }
+    ]
+  },
+  "solana": {
+    "name": "Solana Mainnet",
+    "rpcs": [
+      { "url": "https://api.mainnet-beta.solana.com", "name": "Solana Official" },
+      { "url": "https://solana.publicnode.com", "name": "PublicNode" },
+      { "url": "https://rpc.ankr.com/solana", "name": "Ankr" },
+      { "url": "https://solana.drpc.org", "name": "dRPC" }
+    ],
+    "websockets": [
+      { "url": "wss://api.mainnet-beta.solana.com", "name": "Solana Official WS" }
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "rpc-optimizer",
+  "version": "1.0.0",
+  "description": "High-performance RPC optimization module for EVM (ETH/Base) and Solana",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "benchmark": "node src/benchmark.js",
+    "example": "node examples/usage.js",
+    "test": "node examples/usage.js"
+  },
+  "keywords": [
+    "rpc",
+    "ethereum",
+    "solana",
+    "base",
+    "web3",
+    "optimization",
+    "failover",
+    "latency"
+  ],
+  "author": "xnotok",
+  "license": "MIT",
+  "dependencies": {
+    "ethers": "^6.13.0",
+    "@solana/web3.js": "^1.95.0",
+    "ws": "^8.17.0"
+  }
+}
