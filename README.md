@@ -1,664 +1,215 @@
-\# 🚀 RPC Optimizer
+# 🚀 RPC Optimizer
 
+High-performance RPC optimization for **EVM (Ethereum/Base)** & **Solana** — with both Node.js and Rust implementations.
 
+[![Node.js](https://img.shields.io/badge/Node.js-18+-green?logo=node.js)](https://nodejs.org/)
+[![Rust](https://img.shields.io/badge/Rust-1.70+-orange?logo=rust)](https://www.rust-lang.org/)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-\[!\[Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
+---
 
-\[!\[License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+## ⚡ Performance
 
+| Metric | Node.js | Rust |
+|--------|---------|------|
+| Batch 5 RPC calls | 188ms | **53ms** |
+| Binary size | ~200MB | ~3MB |
+| Cold start | ~500ms | Instant |
 
+**Rust is 3.5x faster** for latency-critical operations like minting & arbitrage.
 
-High-performance RPC optimization module for \*\*EVM (Ethereum/Base)\*\* and \*\*Solana\*\* chains.
+---
 
+## ✨ Features
 
+| Feature | Node.js | Rust | Description |
+|---------|:-------:|:----:|-------------|
+| **Benchmark RPCs** | ✅ | ✅ | Auto-find fastest RPC endpoint |
+| **Multi-RPC Failover** | ✅ | ✅ | Auto-switch on failures |
+| **Request Batching** | ✅ | ✅ | Combine calls into 1 HTTP request |
+| **Nonce Caching** | ✅ | ✅ | Pre-fetch for fast tx building |
+| **Retry + Backoff** | ✅ | ✅ | Exponential/Fibonacci strategies |
+| **Rate Limiter** | ✅ | ✅ | Token bucket algorithm |
+| **Circuit Breaker** | ✅ | ✅ | Prevent cascade failures |
+| **WebSocket** | ✅ | - | Real-time subscriptions |
+| **EVM Client** | ✅ | - | High-level ETH/Base API |
+| **Solana Client** | ✅ | - | High-level Solana API |
 
-Built for speed-critical applications: mint bots, arbitrage, trading, MEV.
+---
 
+## 🔗 Supported Chains
 
+| Chain | RPCs Included |
+|-------|---------------|
+| **Ethereum** | Llama, PublicNode, dRPC, MEVBlocker |
+| **Base** | Base Official, Llama, PublicNode, dRPC |
+| **Solana** | Solana Official, PublicNode, dRPC |
 
-\---
+---
 
+## 📦 Installation
 
-
-\## ✨ Features
-
-
-
-| Feature | Description |
-
-|---------|-------------|
-
-| 🔌 \*\*Connection Pooling\*\* | Keep HTTP connections warm, avoid cold start penalty |
-
-| 🔄 \*\*Multi-RPC Failover\*\* | Auto-switch to backup RPC on failure |
-
-| ⚡ \*\*Latency Benchmark\*\* | Test and pick fastest RPC automatically |
-
-| 📦 \*\*Request Batching\*\* | Multiple calls → 1 HTTP request |
-
-| 🔢 \*\*Nonce Caching\*\* | Pre-fetch nonces for fast transaction building |
-
-| 🔁 \*\*Retry + Backoff\*\* | Handle rate limits gracefully |
-
-| 📡 \*\*WebSocket Support\*\* | Real-time updates via persistent connections |
-
-| 🛡️ \*\*Circuit Breaker\*\* | Prevent cascade failures |
-
-| ⏱️ \*\*Rate Limiter\*\* | Token bucket algorithm |
-
-
-
-\---
-
-
-
-\## 🔗 Supported Chains
-
-
-
-| Chain | HTTP | WebSocket |
-
-|-------|------|-----------|
-
-| Ethereum | ✅ | ✅ |
-
-| Base | ✅ | ✅ |
-
-| Solana | ✅ | ✅ |
-
-
-
-\---
-
-
-
-\## 📦 Installation
-
+### Node.js
 ```bash
-
+cd node
 npm install
-
+npm run example
 ```
 
-
-
-\---
-
-
-
-\## 🚀 Quick Start
-
-
-
-\### Benchmark RPCs
-
-```javascript
-
-import { getBenchmark } from './src/index.js';
-
-
-
-const benchmark = getBenchmark();
-
-await benchmark.benchmarkChain('ethereum', 5);
-
-benchmark.printResults('ethereum');
-
-
-
-const fastest = benchmark.getFastest('ethereum');
-
-console.log(`Fastest: ${fastest.name} (${fastest.latency.avg}ms)`);
-
+### Rust
+```bash
+cd rust
+cargo build --release
+cargo run --release
 ```
 
+---
 
+## 🚀 Quick Start
 
-\### EVM Client (Ethereum/Base)
-
+### Node.js
 ```javascript
+import { createEVMClient, createSolanaClient } from './src/index.js';
 
-import { createEVMClient, formatEther } from './src/index.js';
-
-
-
+// Create client
 const eth = createEVMClient('ethereum');
 
-
-
-// Warmup (benchmark + prefetch)
-
-await eth.warmup(\['0xYourWallet...']);
-
-
-
-// Get data
-
-const block = await eth.getBlockNumber();
-
-const balance = await eth.getBalance('0x...');
-
-const feeData = await eth.getFeeData();
-
-
-
-console.log(`Block: ${block}`);
-
-console.log(`Balance: ${formatEther(balance)} ETH`);
-
-```
-
-
-
-\### Solana Client
-
-```javascript
-
-import { createSolanaClient, lamportsToSol } from './src/index.js';
-
-
-
-const sol = createSolanaClient();
-
-
-
-// Warmup
-
-await sol.warmup();
-
-
-
-// Get data
-
-const slot = await sol.getSlot();
-
-const balance = await sol.getBalance('pubkey...');
-
-const priorityFee = await sol.getRecommendedPriorityFee();
-
-
-
-console.log(`Slot: ${slot}`);
-
-console.log(`Balance: ${lamportsToSol(balance)} SOL`);
-
-```
-
-
-
-\### Request Batching
-
-```javascript
-
-import { batch, getFailover } from './src/index.js';
-
-
-
-const failover = getFailover('ethereum');
-
-const rpc = failover.getCurrent();
-
-
-
-// Batch multiple calls into 1 HTTP request
-
-const result = await batch(rpc.url)
-
-&#x20; .getBalance('0xAddress1')
-
-&#x20; .getBalance('0xAddress2')
-
-&#x20; .getBalance('0xAddress3')
-
-&#x20; .blockNumber()
-
-&#x20; .gasPrice()
-
-&#x20; .execute();
-
-
-
-console.log(`5 calls in ${result.latency}ms`);
-
-```
-
-
-
-\### Failover
-
-```javascript
-
-import { getFailover } from './src/index.js';
-
-
-
-const failover = getFailover('ethereum');
-
-
-
-// Auto-switch on failure
-
-const result = await failover.request('eth\_blockNumber');
-
-console.log(`Block: ${result.result} via ${result.rpc}`);
-
-
-
 // Auto-select fastest RPC
+await eth.warmup(['0xYourWallet...']);
 
-await failover.autoSelect();
+// Use it
+const block = await eth.getBlockNumber();
+const balance = await eth.getBalance('0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045');
 
+console.log('Block:', block);
+console.log('Balance:', balance, 'ETH');
 ```
 
-
-
-\### Nonce Management
-
-```javascript
-
-import { getNonceManager } from './src/index.js';
-
-
-
-const nonces = getNonceManager('ethereum');
-
-
-
-// Prefetch for multiple wallets
-
-await nonces.prefetch(\['0xWallet1', '0xWallet2', '0xWallet3']);
-
-
-
-// Get and auto-increment
-
-const nonce = await nonces.getAndIncrement('0xWallet1');
-
-```
-
-
-
-\### Retry with Backoff
-
-```javascript
-
-import { retry, Strategy } from './src/index.js';
-
-
-
-const result = await retry(
-
-&#x20; async (attempt) => {
-
-&#x20;   // Your function that might fail
-
-&#x20;   return await riskyOperation();
-
-&#x20; },
-
-&#x20; {
-
-&#x20;   maxRetries: 5,
-
-&#x20;   initialDelay: 100,
-
-&#x20;   strategy: Strategy.EXPONENTIAL,
-
-&#x20;   onRetry: ({ attempt, delay }) => {
-
-&#x20;     console.log(`Retry ${attempt} in ${delay}ms`);
-
-&#x20;   }
-
-&#x20; }
-
-);
-
-```
-
-
-
-\### Rate Limiter
-
-```javascript
-
-import { RateLimiter } from './src/index.js';
-
-
-
-const limiter = new RateLimiter({
-
-&#x20; maxTokens: 10,      // 10 requests
-
-&#x20; refillRate: 1,      // 1 token per interval
-
-&#x20; refillInterval: 1000 // 1 second
-
-});
-
-
-
-// Execute with rate limiting
-
-await limiter.execute(async () => {
-
-&#x20; await makeRequest();
-
-});
-
-```
-
-
-
-\### WebSocket (Real-time)
-
-```javascript
-
-import { createWebSocket } from './src/index.js';
-
-
-
-const ws = createWebSocket('ethereum');
-
-await ws.connect();
-
-
-
-// Subscribe to new blocks
-
-await ws.subscribeNewHeads((block) => {
-
-&#x20; console.log(`New block: ${parseInt(block.number, 16)}`);
-
-});
-
-
-
-// Subscribe to pending transactions
-
-await ws.subscribePendingTx((txHash) => {
-
-&#x20; console.log(`Pending tx: ${txHash}`);
-
-});
-
-
-
-// Events
-
-ws.on('connected', () => console.log('Connected!'));
-
-ws.on('disconnected', () => console.log('Disconnected!'));
-
-```
-
-
-
-\---
-
-
-
-\## 📁 Project Structure
-
-```
-
-rpc-optimizer/node/
-
-├── src/
-
-│   ├── index.js         # Main export
-
-│   ├── pool.js          # Connection pooling
-
-│   ├── benchmark.js     # Latency testing
-
-│   ├── failover.js      # Multi-RPC failover
-
-│   ├── batch.js         # Request batching
-
-│   ├── nonce.js         # Nonce caching
-
-│   ├── retry.js         # Retry + backoff + rate limiter
-
-│   ├── websocket.js     # WebSocket support
-
-│   └── chains/
-
-│       ├── evm.js       # Ethereum/Base client
-
-│       └── solana.js    # Solana client
-
-├── config/
-
-│   └── rpcs.json        # RPC endpoints
-
-├── examples/
-
-│   └── usage.js         # Example usage
-
-├── package.json
-
-└── README.md
-
-```
-
-
-
-\---
-
-
-
-\## ⚙️ Configuration
-
-
-
-Edit `config/rpcs.json` to add/modify RPC endpoints:
-
-```json
-
-{
-
-&#x20; "ethereum": {
-
-&#x20;   "name": "Ethereum Mainnet",
-
-&#x20;   "chainId": 1,
-
-&#x20;   "rpcs": \[
-
-&#x20;     { "url": "https://eth.llamarpc.com", "name": "Llama" },
-
-&#x20;     { "url": "https://rpc.ankr.com/eth", "name": "Ankr" }
-
-&#x20;   ],
-
-&#x20;   "websockets": \[
-
-&#x20;     { "url": "wss://eth.llamarpc.com", "name": "Llama WS" }
-
-&#x20;   ]
-
-&#x20; }
-
+### Rust
+```rust
+use rpc_optimizer::*;
+
+#[tokio::main]
+async fn main() {
+    // Benchmark and find fastest
+    let config = default_config();
+    let mut benchmark = create_benchmark();
+    
+    if let Some(eth_config) = config.get("ethereum") {
+        benchmark.benchmark_chain("ethereum", eth_config, 3).await;
+        benchmark.print_results("ethereum");
+    }
+
+    // Batch requests
+    let result = batch("https://eth.drpc.org")
+        .get_balance("0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045", "latest")
+        .block_number()
+        .gas_price()
+        .execute()
+        .await;
+
+    println!("Batch completed in {}ms", result.latency_ms);
 }
-
 ```
 
+---
 
+## 📊 Benchmark Example
+```
+🔍 Benchmarking Ethereum Mainnet (3 rounds each)...
 
-\---
+  Testing Llama          ... ✅ avg: 212.8ms | p95: 212.8ms
+  Testing PublicNode     ... ✅ avg: 214.7ms | p95: 263.8ms
+  Testing dRPC           ... ✅ avg: 50.6ms  | p95: 73.9ms
+  Testing MEVBlocker     ... ✅ avg: 706.6ms | p95: 997.9ms
 
+📊 Results for ETHEREUM
+──────────────────────────────────────────────────────────────────
+Rank │ Name            │ Avg (ms) │ P95 (ms) │ Min (ms) │ Success
+──────────────────────────────────────────────────────────────────
+   1 │ dRPC            │     50.6 │     73.9 │     33.9 │ 100%
+   2 │ PublicNode      │    214.7 │    263.8 │    180.6 │ 100%
+   3 │ Llama           │    212.8 │    212.8 │    212.8 │ 33%
+   4 │ MEVBlocker      │    706.6 │    997.9 │    555.8 │ 100%
+──────────────────────────────────────────────────────────────────
 
-
-\## 🏃 Run Examples
-
-```bash
-
-\# Run all examples
-
-npm run example
-
-
-
-\# Benchmark only
-
-npm run benchmark
-
-
-
-\# Benchmark specific chain
-
-node src/benchmark.js ethereum 5
-
-node src/benchmark.js base 5
-
-node src/benchmark.js solana 5
-
+✅ Fastest: dRPC (50.6ms avg)
 ```
 
+---
 
+## 🔧 Use Cases
 
-\---
+| Use Case | Recommended |
+|----------|-------------|
+| **FCFS NFT Minting** | Rust (microseconds matter) |
+| **Arbitrage Bot** | Rust (latency critical) |
+| **MEV Bot** | Rust (racing other bots) |
+| **Monitoring/Alerts** | Node.js (easier to build) |
+| **Dashboard/API** | Node.js (rich ecosystem) |
+| **Prototyping** | Node.js (fast iteration) |
 
+---
 
-
-\## 🎯 Use Cases
-
-
-
-\### Mint Bot
-
-```javascript
-
-const eth = createEVMClient('base');
-
-
-
-// 1. Warmup 5 seconds before mint
-
-await eth.warmup(walletAddresses);
-
-
-
-// 2. Nonces already cached
-
-const nonce = await eth.getNextNonce(wallet);
-
-
-
-// 3. Fee data already cached
-
-const feeData = await eth.getFeeData();
-
-
-
-// 4. Build and send tx (you handle signing)
-
-const txHash = await eth.sendRawTransaction(signedTx);
-
-
-
-// 5. Wait for confirmation
-
-const receipt = await eth.waitForTransaction(txHash);
-
+## 📁 Project Structure
+```
+rpc-optimizer/
+├── node/                   # Node.js implementation
+│   ├── src/
+│   │   ├── index.js        # Main exports
+│   │   ├── config.js       # RPC configuration
+│   │   ├── benchmark.js    # Latency testing
+│   │   ├── failover.js     # Multi-RPC failover
+│   │   ├── batch.js        # Request batching
+│   │   ├── nonce.js        # Nonce caching
+│   │   ├── retry.js        # Retry strategies
+│   │   ├── websocket.js    # WebSocket support
+│   │   └── chains/
+│   │       ├── evm.js      # ETH/Base client
+│   │       └── solana.js   # Solana client
+│   ├── config/
+│   │   └── rpcs.json       # RPC endpoints
+│   ├── examples/
+│   │   └── usage.js        # Example usage
+│   └── package.json
+│
+└── rust/                   # Rust implementation
+    ├── src/
+    │   ├── lib.rs          # Library exports
+    │   ├── main.rs         # Example runner
+    │   ├── config.rs       # RPC configuration
+    │   ├── benchmark.rs    # Latency testing
+    │   ├── failover.rs     # Multi-RPC failover
+    │   ├── batch.rs        # Request batching
+    │   ├── nonce.rs        # Nonce caching
+    │   └── retry.rs        # Retry strategies
+    └── Cargo.toml
 ```
 
+---
 
+## 🤝 Contributing
 
-\### Arbitrage Bot
+1. Fork the repo
+2. Create feature branch (`git checkout -b feature/amazing`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing`)
+5. Open a Pull Request
 
-```javascript
+---
 
-// Batch read prices from multiple sources
+## 📄 License
 
-const result = await eth.batchRead(\[
+MIT License - feel free to use in your projects!
 
-&#x20; { method: 'eth\_call', params: \[{ to: uniswap, data: priceCall }] },
+---
 
-&#x20; { method: 'eth\_call', params: \[{ to: sushiswap, data: priceCall }] },
+## 🔗 Related Projects
 
-&#x20; { method: 'eth\_call', params: \[{ to: curve, data: priceCall }] }
+- [bounty-radar](https://github.com/xnotok-ops/bounty-radar) - Bug bounty research dashboard
+- [github-radar](https://github.com/xnotok-ops/github-radar) - Trending GitHub repos tracker
+- [hf-radar](https://github.com/xnotok-ops/hf-radar) - HuggingFace trending tracker
 
-]);
+---
 
-
-
-// All prices in 1 HTTP request!
-
-```
-
-
-
-\### Real-time Monitoring
-
-```javascript
-
-const ws = createWebSocket('ethereum');
-
-await ws.connect();
-
-
-
-// Monitor mempool
-
-await ws.subscribePendingTx((txHash) => {
-
-&#x20; // Analyze pending tx
-
-});
-
-
-
-// Monitor blocks
-
-await ws.subscribeNewHeads((block) => {
-
-&#x20; // New block arrived
-
-});
-
-```
-
-
-
-\---
-
-
-
-\## 📊 Performance
-
-
-
-| Operation | Single RPC | With Optimizer |
-
-|-----------|------------|----------------|
-
-| 10 balance checks | \~1000ms | \~100ms (batched) |
-
-| Cold start request | \~200ms | \~50ms (warm pool) |
-
-| RPC failure recovery | Manual | Automatic (<100ms) |
-
-| Nonce fetch | \~50ms each | Cached (\~1ms) |
-
-
-
-\---
-
-
-
-\## 📄 License
-
-
-
-MIT License - feel free to use for your own projects!
-
-
-
-\---
-
-
-
-\*\*Built for speed by \[@xnotok](https://twitter.com/xnotok)\*\* 🚀
-
+**Built with ⚡ by [@xnotok](https://github.com/xnotok-ops)**
