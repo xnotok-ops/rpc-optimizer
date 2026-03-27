@@ -1,0 +1,39 @@
+[package]
+name = "rpc_optimizer"
+version = "1.0.0"
+edition = "2021"
+authors = ["xnotok"]
+description = "High-performance RPC optimizer for EVM & Solana"
+license = "MIT"
+
+[dependencies]
+# Async runtime
+tokio = { version = "1.43", features = ["full"] }
+
+# HTTP client
+reqwest = { version = "0.12", features = ["json", "rustls-tls"] }
+
+# JSON
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# WebSocket
+tokio-tungstenite = { version = "0.24", features = ["rustls-tls-native-roots"] }
+futures-util = "0.3"
+
+# Utilities
+thiserror = "2.0"
+anyhow = "1.0"
+chrono = "0.4"
+url = "2.5"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
